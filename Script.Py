@@ -5,33 +5,41 @@
 #Database format example: “1AXC	B”
 #Set active folder: cd <folder path>
 
-#Set variables
-cmd.do("set solvent_radius, " + str(SolventRadius)) 
-cmd.do("set dot_density, " + str(DotDensity)) 
+#Define function to get surface area of structure
+def SASA():
+	#Set solvent radius
+	SolventRadius = 1.4
+	#Calculation Quality (0 = very fast, 5 = very slow, higher accuracy. Default = 2) 
+	DotDensity = 3
+	
+	#Set variables
+	cmd.do("set solvent_radius, " + str(SolventRadius))
+	cmd.do("set dot_density, " + str(DotDensity))
+	#Prepare molecule
+	cmd.do("remove hydro")
+	cmd.do("remove solvent")
+	cmd.do("show dots")
+	cmd.do("set dot_solvent, on")
+	
+	#Count models
+	states = cmd.count_states("all")
 
-#Prepare molecule
-cmd.do("remove hydro")
-cmd.do("remove solvent")
-cmd.do("show dots")
-cmd.do("set dot_solvent, on") 
+	total = 0
+	polar = 0
+	nonpolar = 0
 
-#Count models 
-states = cmd.count_states("all")
+	#Loop through states and calculate surface area
+	for i in range(0,states):
+		total += cmd.get_area("all", i+1)
+		polar += cmd.get_area("elem N+O", i+1)
+		nonpolar += cmd.get_area("elem C+S", i+1)
 
-total = 0
-polar = 0
-nonpolar = 0
+	#Find average surface areas
+	avg_total = total/states
+	avg_polar = polar/states
+	avg_nopol = nonpolar/states
 
-#Loop through models and calculate surface area for each state 
-for i in range(0,states): 
-total += cmd.get_area("all", i+1)		#get total area
-polar += cmd.get_area("elem N+O", i+1) 		#get polar area
-nonpolar += cmd.get_area("elem C+S", i+1) 	#get nonpolar area
-
-#Calculate average values
-avg_total = total/states
-avg_polar = polar/states
-avg_nopol = nonpolar/states
+	return [avg_total , avg_polar ,avg_nopol]
 
 
 #Load list of PDB codes and ID chain identifiers
@@ -45,31 +53,31 @@ for i in range(0,len(lines)):
 	line = lines[i].strip()
 
 	#Get PDB code
-	n = line[:4].strip()
+	pdbid = line[:4].strip()
 
 	#Fetch molecule
-	cmd.fetch(n)
+	cmd.fetch(pdbid)
 
 	#Get IDP chain identifier
 	disorderedchainref = line[5:].strip()
 
 	#Get IDP sequence and remove chain ID string
-	s = cmd.get_fastastr("chain " + disorderedchainref)[5:].strip().replace("\n","")
+	sequence = cmd.get_fastastr("chain " + disorderedchainref)[5:].strip().replace("\n","")
 
 	#Skip the complex if the IDP contains modified or non-standard residues
-	if '?' in seq: continue
+	if '?' in sequence: continue
 
 	#Filters short IDP chains
-	if len(s) < 5: continue
+	if len(sequence) < 5: continue
 
 	#Get complex surface (SASA defined as Script 1, returns array containing total, polar #and nonpolar surface area)
-	c = SASA()
+	surface_complex = SASA()
 
 	#Remove IDP
 	cmd.do("remove chain " + str(disorderedchainref))
 
 	#Get folded protein surface
-	f = SASA()
+	surface_folded = SASA()
 
 	#Converts values to strings and prints in console (copy to text file to save)
-	print(n, s, str(f[0]), str(f[1]), str(f[2]), str(c[0]), str(c[1]), str(c[2]))
+	print(pdbid, sequence, str(surface_folded[0]), str(surface_folded[1]), str(surface_folded[2]), str(surface_complex[0]), str(surface_complex[1]), str(surface_complex[2]))
