@@ -45,8 +45,14 @@ def SASA():
 #Load list of PDB codes and ID chain identifiers
 database = “path/database.txt”
 
+print("Loading database...")
+
 with open(database) as f:
 	lines = f.readlines()
+	
+print("Database loaded")
+print("Starting calculations...")
+print("")
 
 for i in range(0,len(lines)):
 	cmd.do("delete all")
@@ -81,3 +87,7 @@ for i in range(0,len(lines)):
 
 	#Converts values to strings and prints in console (copy to text file to save)
 	print(pdbid, sequence, str(surface_folded[0]), str(surface_folded[1]), str(surface_folded[2]), str(surface_complex[0]), str(surface_complex[1]), str(surface_complex[2]))
+
+print("")
+print("Calculations completed")
+print("Script finished")
