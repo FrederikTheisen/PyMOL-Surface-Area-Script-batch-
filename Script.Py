@@ -38,7 +38,7 @@ avg_nopol = nonpolar/states
 database = “path/database.txt”
 
 with open(database) as f:
-    lines = f.readlines()
+	lines = f.readlines()
 
 for i in range(0,len(lines)):
 	cmd.do("delete all")
@@ -55,14 +55,14 @@ for i in range(0,len(lines)):
 
 	#Get IDP sequence and remove chain ID string
 	s = cmd.get_fastastr("chain " + disorderedchainref)[5:].strip().replace("\n","")
-	
-#Skip the complex if the IDP contains modified or non-standard residues
+
+	#Skip the complex if the IDP contains modified or non-standard residues
 	if '?' in seq: continue
 
 	#Filters short IDP chains
 	if len(s) < 5: continue
 
-#Get complex surface (SASA defined as Script 1, returns array containing total, polar #and nonpolar surface area)
+	#Get complex surface (SASA defined as Script 1, returns array containing total, polar #and nonpolar surface area)
 	c = SASA()
 
 	#Remove IDP
@@ -70,6 +70,6 @@ for i in range(0,len(lines)):
 
 	#Get folded protein surface
 	f = SASA()
-	
+
 	#Converts values to strings and prints in console (copy to text file to save)
-print(n, s, str(f[0]), str(f[1]), str(f[2]), str(c[0]), str(c[1]), str(c[2]))
+	print(n, s, str(f[0]), str(f[1]), str(f[2]), str(c[0]), str(c[1]), str(c[2]))
