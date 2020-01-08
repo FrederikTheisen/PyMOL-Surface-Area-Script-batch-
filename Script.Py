@@ -39,11 +39,13 @@ def SASA():
 	avg_polar = polar/states
 	avg_nopol = nonpolar/states
 
-	return [avg_total , avg_polar ,avg_nopol]
+	return [avg_total, avg_polar, avg_nopol]
 
 
 #Load list of PDB codes and ID chain identifiers
 database = “path/database.txt”
+#Minimum IDP chain length
+minimumlength = 5
 
 print("Loading database...")
 
@@ -74,7 +76,7 @@ for i in range(0,len(lines)):
 	if '?' in sequence: continue
 
 	#Filters short IDP chains
-	if len(sequence) < 5: continue
+	if len(sequence) < minimumlength: continue
 
 	#Get complex surface (SASA defined as Script 1, returns array containing total, polar #and nonpolar surface area)
 	surface_complex = SASA()
