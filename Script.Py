@@ -56,7 +56,7 @@ print("")
 #Output container
 output = []
 
-for i in range(0, 5):#len(lines)):
+for i in range(0, len(lines)):
 	#Clear PyMOL
 	cmd.delete("all")
 	
