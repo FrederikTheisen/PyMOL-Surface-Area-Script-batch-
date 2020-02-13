@@ -1,20 +1,22 @@
 #PyMOL surface area batch script
-#Frederik Theisen, 2018
+#Frederik Theisen, 2020
 #Usage: place file in active folder and execute "run <filename.extension>" #Example: run script.txt
-#Ensure the existence of properly formatted database file “path/database.txt”
+#Ensure the existence of properly formatted database file “[path/]database.txt”
 #Database format example: “1AXC	B”
 #Set active folder: cd <folder path>
+
+DATABASE = 'id_complex_database.txt'	#Database path (can be relative)
+MINIMUMLENGTH = 4 			#Minimum IDP chain length
+QUALITY = 0				#Surface calculation resolution (0 = very fast, 5 = very slow, higher accuracy. Default = 2) 
 
 #Define function to get surface area of structure
 def SASA():
 	#Set solvent radius
 	SolventRadius = 1.4
-	#Calculation Quality (0 = very fast, 5 = very slow, higher accuracy. Default = 2) 
-	DotDensity = 3
 	
 	#Set variables
 	cmd.do("set solvent_radius, " + str(SolventRadius))
-	cmd.do("set dot_density, " + str(DotDensity))
+	cmd.do("set dot_density, " + str(QUALITY))
 	#Prepare molecule
 	cmd.do("remove hydro")
 	cmd.do("remove solvent")
@@ -41,23 +43,24 @@ def SASA():
 
 	return [avg_total, avg_polar, avg_nopol]
 
-
-#Load list of PDB codes and ID chain identifiers
-database = “path/database.txt”
-#Minimum IDP chain length
-minimumlength = 5
-
+print("Starting Script")
 print("Loading database...")
 
-with open(database) as f:
+with open(DATABASE) as f:
 	lines = f.readlines()
 	
 print("Database loaded")
 print("Starting calculations...")
 print("")
 
-for i in range(0,len(lines)):
-	cmd.do("delete all")
+#Output container
+output = []
+
+for i in range(0, 5):#len(lines)):
+	#Clear PyMOL
+	cmd.delete("all")
+	
+	#Get line
 	line = lines[i].strip()
 
 	#Get PDB code
@@ -68,17 +71,19 @@ for i in range(0,len(lines)):
 
 	#Get IDP chain identifier
 	disorderedchainref = line[5:].strip()
-
+	
+	#Select IDP with only visible amino acids and save as "idp"
+	cmd.do("select idp, chain " + disorderedchainref + ", 0, 1, 0, 1")
 	#Get IDP sequence and remove chain ID string (selection string, state = only visible, quiet = yes)
-	sequence = cmd.get_fastastr("chain " + disorderedchainref, 1, 1)[5:].strip().replace("\n","")
+	sequence = cmd.get_fastastr("idp")[5:].strip().replace("\n","")
 
 	#Skip the complex if the IDP contains modified or non-standard residues
 	if '?' in sequence: continue
 
 	#Filters short IDP chains
-	if len(sequence) < minimumlength: continue
+	if len(sequence) < MINIMUMLENGTH: continue
 
-	#Get complex surface (SASA defined as Script 1, returns array containing total, polar #and nonpolar surface area)
+	#Get complex surface (SASA defined as Script 1, returns array containing total, polar and nonpolar surface area)
 	surface_complex = SASA()
 
 	#Remove IDP
@@ -88,8 +93,22 @@ for i in range(0,len(lines)):
 	surface_folded = SASA()
 
 	#Converts values to strings and prints in console (copy to text file to save)
-	print(pdbid, sequence, str(surface_folded[0]), str(surface_folded[1]), str(surface_folded[2]), str(surface_complex[0]), str(surface_complex[1]), str(surface_complex[2]))
+	output.append([pdbid, sequence, str(surface_folded[0]), str(surface_folded[1]), str(surface_folded[2]), str(surface_complex[0]), str(surface_complex[1]), str(surface_complex[2])])
 
 print("")
 print("Calculations completed")
+print("Results (PDB, IDP seq, folded domain (fd) total surface, fd polar, fd non-polar, complex total, complex polar, complex non-polar):")
+print("")
+
+for e in output:
+	print(str(e[0]) + "\t" 
+	+ str(e[1])+ "\t" 
+	+ str(e[2])+ "\t" 
+	+ str(e[3])+ "\t" 
+	+ str(e[4])+ "\t" 
+	+ str(e[5])+ "\t" 
+	+ str(e[6])+ "\t" 
+	+ str(e[7]))
+
+print("")
 print("Script finished")
