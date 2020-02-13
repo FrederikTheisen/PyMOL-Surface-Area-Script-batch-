@@ -5,9 +5,11 @@
 #Database format example: “1AXC	B”
 #Set active folder: cd <folder path>
 
+print("PyMOL IDP COMPLEX SURFACE AREA SCRIPT")
+
 DATABASE = 'id_complex_database.txt'	#Database path (can be relative)
 MINIMUMLENGTH = 4 			#Minimum IDP chain length
-QUALITY = 0				#Surface calculation resolution (0 = very fast, 5 = very slow, higher accuracy. Default = 2) 
+QUALITY = 2				#Surface calculation resolution (0 = very fast, 5 = very slow, higher accuracy. Default = 2) 
 
 #Define function to get surface area of structure
 def SASA():
@@ -83,7 +85,7 @@ for i in range(0, len(lines)):
 	#Filters short IDP chains
 	if len(sequence) < MINIMUMLENGTH: continue
 
-	#Get complex surface (SASA defined as Script 1, returns array containing total, polar and nonpolar surface area)
+	#Get complex surface (SASA defined in function, returns array containing total, polar and nonpolar surface area)
 	surface_complex = SASA()
 
 	#Remove IDP
@@ -97,18 +99,23 @@ for i in range(0, len(lines)):
 
 print("")
 print("Calculations completed")
+print("Results: " + str(len(output)))
 print("Results (PDB, IDP seq, folded domain (fd) total surface, fd polar, fd non-polar, complex total, complex polar, complex non-polar):")
 print("")
 
+f = open('output.txt', 'w+')
+
 for e in output:
-	print(str(e[0]) + "\t" 
-	+ str(e[1])+ "\t" 
-	+ str(e[2])+ "\t" 
-	+ str(e[3])+ "\t" 
-	+ str(e[4])+ "\t" 
-	+ str(e[5])+ "\t" 
-	+ str(e[6])+ "\t" 
-	+ str(e[7]))
+	f.write(str(e[0]) + "\t" 
+	+ str(e[1]) + "\t" 
+	+ str(e[2]) + "\t" 
+	+ str(e[3]) + "\t" 
+	+ str(e[4]) + "\t" 
+	+ str(e[5]) + "\t" 
+	+ str(e[6]) + "\t" 
+	+ str(e[7]) + "\n")
+
+f.close()
 
 print("")
 print("Script finished")
