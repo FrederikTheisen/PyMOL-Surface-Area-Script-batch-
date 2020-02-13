@@ -69,8 +69,8 @@ for i in range(0,len(lines)):
 	#Get IDP chain identifier
 	disorderedchainref = line[5:].strip()
 
-	#Get IDP sequence and remove chain ID string
-	sequence = cmd.get_fastastr("chain " + disorderedchainref)[5:].strip().replace("\n","")
+	#Get IDP sequence and remove chain ID string (selection string, state = only visible, quiet = yes)
+	sequence = cmd.get_fastastr("chain " + disorderedchainref, 1, 1)[5:].strip().replace("\n","")
 
 	#Skip the complex if the IDP contains modified or non-standard residues
 	if '?' in sequence: continue
