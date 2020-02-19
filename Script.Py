@@ -7,18 +7,16 @@
 
 print("PyMOL IDP COMPLEX SURFACE AREA SCRIPT")
 
-DATABASE = 'id_complex_database.txt'	#Database path (can be relative)
+DATABASE = 'id_complex_database.txt'	#Database path (path relative to working dir)
 MINIMUMLENGTH = 4 			#Minimum IDP chain length
 QUALITY = 2				#Surface calculation resolution (0 = very fast, 5 = very slow, higher accuracy. Default = 2) 
 
 #Define function to get surface area of structure
 def SASA():
-	#Set solvent radius
-	SolventRadius = 1.4
-	
 	#Set variables
-	cmd.do("set solvent_radius, " + str(SolventRadius))
+	cmd.do("set solvent_radius, 1.4")
 	cmd.do("set dot_density, " + str(QUALITY))
+
 	#Prepare molecule
 	cmd.do("remove hydro")
 	cmd.do("remove solvent")
@@ -100,8 +98,8 @@ for i in range(0, len(lines)):
 print("")
 print("Calculations completed")
 print("Results: " + str(len(output)))
-print("Results (PDB, IDP seq, folded domain (fd) total surface, fd polar, fd non-polar, complex total, complex polar, complex non-polar):")
-print("")
+print("Results format: PDB, IDP seq, folded domain (fd) total surface, fd polar, fd non-polar, complex total, complex polar, complex non-polar")
+print("Saving results to file...")
 
 f = open('output.txt', 'w+')
 
@@ -117,5 +115,6 @@ for e in output:
 
 f.close()
 
+print("Results saved in file: output.txt")
 print("")
 print("Script finished")
