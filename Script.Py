@@ -13,15 +13,18 @@ QUALITY = 2				#Surface calculation resolution (0 = very fast, 5 = very slow, hi
 
 #Define function to get surface area of structure
 def SASA():
-	#Set variables
+	#Set variables (1.4 Å is standard water molecule size)
 	cmd.do("set solvent_radius, 1.4")
 	cmd.do("set dot_density, " + str(QUALITY))
 
 	#Prepare molecule
-	cmd.do("remove hydro")
-	cmd.do("remove solvent")
-	cmd.do("show dots")
-	cmd.do("set dot_solvent, on")
+	cmd.do("remove hydro") 		#remove hydrogens
+	cmd.do("remove solvent") 	#remove water solvent
+	cmd.do("select s, hetatm") 	#select non-protein atoms
+	cmd.do("remove s") 		#remove non-protein selection
+	cmd.do("show dots") 		#prepare protein calculation surface 
+	cmd.do("set dot_solvent, on")	#approximate solvent size
+
 	
 	#Count models
 	states = cmd.count_states("all")
