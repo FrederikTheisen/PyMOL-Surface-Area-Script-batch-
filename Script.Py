@@ -9,7 +9,7 @@ print("PyMOL IDP COMPLEX SURFACE AREA SCRIPT")
 
 DATABASE = 'id_complex_database.txt'	#Database path (path relative to working dir)
 MINIMUMLENGTH = 4 			#Minimum IDP chain length
-QUALITY = 2				#Surface calculation resolution (0 = very fast, 5 = very slow, higher accuracy. Default = 2) 
+QUALITY = 2				#Surface calculation resolution (0 = very fast, 4 = very slow, higher accuracy. Default = 2) 
 
 #Define function to get surface area of structure
 def SASA():
